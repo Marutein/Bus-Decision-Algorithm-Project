@@ -153,12 +153,12 @@ colors=brewer.pal(8, "Dark2"), scale=c(3, 0.7))
 ```{r}
 library(topicmodels)
 library(tidytext)
-
+ data("AssociatedPress")
 ap_lda <- LDA(AssociatedPress, k = 3, control = list(seed = 1234))
 ap_lda
 
 ap_topics <- tidy(ap_lda, matrix = "beta")
-ap_topics
+  ap_topics
 
 
 ```
