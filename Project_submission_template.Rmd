@@ -1,0 +1,165 @@
+---
+title: "6600: Project Submission template"
+
+
+output:
+  html_document: default
+  pdf_document: default
+---
+##  This is a template. 
+
+**Data Sets**
+
+```{r}
+project_data <- read.csv("http://data.mishra.us/files/project_data.csv")
+project_data
+```
+
+```{r}
+project_reviews <- read.csv(url("http://data.mishra.us/files/project_reviews.csv"))
+project_reviews
+```
+
+**Regression analysis**
+
+```{r, warning=FALSE, message=FALSE}
+#Linear Regression (Significant Testing)
+model1<- lm(amount_spent~., data=project_data)
+summary(model1)
+
+#Testing multicollinearity using Variance Inflation Factors (VIF)
+
+library("olsrr")
+ols_vif_tol(model1)
+
+library(car)
+car::vif(model1)
+```
+
+```{r}
+#Which predictors have a significant influence on amount spent on concessions?
+movies_seen       
+days_member
+#Which predictors are multicollinear?
+None
+
+Using Library car values
+more than 5 indicate a problem.
+
+Using Library olsrr Tolerance of <0.1 might indicate multicollinearity
+VIFs above 10 indicate multicollinearity.
+
+```
+
+
+**Penalized Regression**
+
+```{r, warning=FALSE, message=FALSE}
+library(ROCR)
+library(glmnet)
+
+
+
+```
+
+
+**Predictive model**
+The analysis was run by splitting the data........
+```{r, warning=FALSE, message=FALSE}
+
+
+```
+
+**Text Analysis**
+**WordCloud**
+```{r, warning=FALSE, message=FALSE}
+library(corpus)
+library(tm)
+library(wordcloud)
+
+project_reviews_more_3stars<- subset(project_reviews, star>=3)
+project_reviews_less_2stars<- subset(project_reviews, star<=3)
+
+text_more_3stars <-paste(project_reviews_more_3stars$text)
+text_more_less_2stars <-paste(project_reviews_less_2stars$text)
+
+
+#Creating a wordcloud for reviews over 3 stars
+corpus <- VCorpus(VectorSource(text_more_3stars))
+
+# we create a function that helps us clean special characters
+# like /,@,\\,|,:
+ct <- content_transformer(function(x, pattern) gsub(pattern, " ", x))
+corpus <- tm_map(corpus, ct, "/|@|\\|:")
+# remove white space
+corpus<- tm_map(corpus, stripWhitespace)
+# the next line of code converts all words to lower case else same
+# word as lower and uppercase will be classified as different words
+corpus <- tm_map(corpus, content_transformer(tolower))
+# remove numbers
+corpus <- tm_map(corpus, removeNumbers) 
+# remove punctuations
+corpus <- tm_map(corpus, removePunctuation) 
+# removes common stopwords
+corpus <- tm_map(corpus, removeWords, stopwords(kind="en")) 
+#term-to-document matrix
+dtm <- TermDocumentMatrix(corpus)
+# converts document to term matrix object as a matrix
+mtrix <- as.matrix(dtm) 
+# sorts them in decreasing order
+v <- sort(rowSums(mtrix),decreasing=TRUE)
+d <- data.frame(word = names(v),freq=v)
+
+
+wordcloud(words = d$word, freq = d$freq, min.freq = 1,
+max.words=100, random.order=FALSE, rot.per=0.35,
+colors=brewer.pal(8, "Dark2"), scale=c(3, 0.7))
+
+
+#Creating a wordcloud for reviews lower than 2 stars
+
+corpus2 <- VCorpus(VectorSource(text_more_less_2stars))
+# we create a function that helps us clean special characters
+# like /,@,\\,|,:
+ct <- content_transformer(function(x, pattern) gsub(pattern, " ", x))
+corpus2 <- tm_map(corpus2, ct, "/|@|\\|:")
+# remove white space
+corpus2<- tm_map(corpus2, stripWhitespace)
+# the next line of code converts all words to lower case else same
+# word as lower and uppercase will be classified as different words
+corpus2 <- tm_map(corpus2, content_transformer(tolower))
+# remove numbers
+corpus2 <- tm_map(corpus2, removeNumbers) 
+# remove punctuations
+corpus2 <- tm_map(corpus2, removePunctuation) 
+# removes common stopwords
+corpus2 <- tm_map(corpus2, removeWords, stopwords(kind="en")) 
+#term-to-document matrix
+dtm2 <- TermDocumentMatrix(corpus2)
+# converts document to term matrix object as a matrix
+mtrix2 <- as.matrix(dtm2) 
+# sorts them in decreasing order
+v <- sort(rowSums(mtrix2),decreasing=TRUE) 
+d <- data.frame(word = names(v),freq=v)
+
+#wordcloud settings
+wordcloud(words = d$word, freq = d$freq, min.freq = 1,
+max.words=100, random.order=FALSE, rot.per=0.35,
+colors=brewer.pal(8, "Dark2"), scale=c(3, 0.7))
+
+```
+**Topic Modeling**
+
+```{r}
+library(topicmodels)
+library(tidytext)
+
+ap_lda <- LDA(AssociatedPress, k = 3, control = list(seed = 1234))
+ap_lda
+
+ap_topics <- tidy(ap_lda, matrix = "beta")
+ap_topics
+
+
+```
+
