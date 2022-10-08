@@ -217,6 +217,28 @@ max.words=100, random.order=FALSE, rot.per=0.35,
 colors=brewer.pal(8, "Dark2"), scale=c(3, 0.7))
 
 ```
+## Question 6 
+Knowing the prominent words in each of the wordclouds, what strategies can be developed in messaging customers?
+> We want to create an outstanding experience for our customers; if food and movies are intrinsically related, we must ensure that they are in an enjoyable environment where they can enjoy the film. We also need to provide great food.
+Based on the wordcloud, we can infer that the establishment is already a good place for the consumer so we will focus on the relationship between food, service, and experience.
+1) Discounts on tickets:
+If we grant discounts on tickets, we will increase consumer attendance, allowing us to focus our market on food consumption.
+2) Orders by apps:
+Order food, snacks, and drinks through mobile applications to save waiting times in lines.
+3) Special purchases:
+Request drinks and snacks during the movie to be brought to the client's seat. (Extra charge)
+4) Food Lockers:
+The implementation of food lockers could allow users to buy before and during the movie and pick it up directly without having to wait. (No extra charge)
+5) Combo deals:
+If the customer purchases a combo, they can get a free refill of any items that make up it.
+6) Full-service meal:
+Expand conventional options to offer complete meals to customers.
+7) Reward consumption:
+When reaching a specific expense in the consumption of food, snacks, and drinks, we can grant an improvement in the seats that the clients will use on the next visit; another option will be to give them a free food pass on their next visit.
+
+Would the strategies differ?
+> Analyzing both word clouds, we can identify that food and movies are entirely related. The strategy won't differ.
+
 
 **Topic Modeling**
 
@@ -248,6 +270,14 @@ ggplot(aes(term, beta, fill = factor(topic))) +
 geom_col(show.legend = FALSE) +
 facet_wrap(~ topic, scales = "free") +
 coord_flip()
-
 ```
 
+##Question 7
+Which term is the most relevant in each of the three topics and how would it inform your business strategy?
+> ANSWER
+
+What strategies would you suggest are possible for MovieMagic if it wants to increase concession sales.
+> ANSWER
+
+Would you recommend promotions or advertising or loyalty program; justify your choice of business strategy?
+> ANSWER
