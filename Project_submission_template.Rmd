@@ -1,66 +1,134 @@
 ---
 title: "6600: Project Submission template"
-
-
 output:
   html_document: default
   pdf_document: default
 ---
-##  This is a template. 
 
 **Data Sets**
 
 ```{r}
 project_data <- read.csv("http://data.mishra.us/files/project_data.csv")
-project_data
+head(project_data)
 ```
 
 ```{r}
 project_reviews <- read.csv(url("http://data.mishra.us/files/project_reviews.csv"))
-project_reviews
+head(project_reviews)
 ```
+
+```{r}
+#pre-process the data to prepare for regression
+library(tidyverse)
+
+project_data = project_data %>% 
+  mutate(
+    seen_alone = if_else(seen_alone == 'no',0,1),
+    discount = if_else(discount == 'no',0,1),
+    job = factor(job),
+    education = factor(education)
+  )
+```
+
 
 **Regression analysis**
 
+## Question 1
+
+Of the 8 predictors, which predictors have a significant influence on amount spent on concessions? Which predictors are multicollinear? Justify your response with reasons from the analysis.
+
 ```{r, warning=FALSE, message=FALSE}
 #Linear Regression (Significant Testing)
+#note that the lm function takes care of dummytizing
 model1<- lm(amount_spent~., data=project_data)
 summary(model1)
+```
 
+```{r}
 #Testing multicollinearity using Variance Inflation Factors (VIF)
+library(car)
+vif_output <- as.data.frame(car::vif(model1))
+vif_output$VIF = vif_output$`GVIF^(1/(2*Df))`**2
+vif_output
 
 library("olsrr")
 ols_vif_tol(model1)
 
-library(car)
-car::vif(model1)
 ```
+
+> We find that four vairables have a significant influence on the amount spent on concessions: Age, streaming, days_member, and movies seen. In a linear regression, the coefficients for all of these predictors differ from 0 with greater than 95% confidence, meaning we are quite sure they have a significant influence on the outcome.
+
+> This dataset includes factor variables, which introduces a twist on the standard way we test for multi-collinearity. Since factor variables have more than 1 degree of freedom, we must use the generalized VIF. To then make values for each feature comparable, we must raise this to the 1/2df. The result is analogous to taking the square root of the standard VIF. Here, we square the value to so we can apply our standard rules of thumb. Upon squaring, no values have VIF greater than 5 and we conclude that no features are multicollinear. 
+
+> We also test for multicollinearity using the library olsrr. All tolerance values are above 0.25 and VIF values are below 5, so again we conclude no features are multicollinear.  
+
+Citation:
+MsGISRocker (https://stats.stackexchange.com/users/44862/msgisrocker), Which variance inflation factor should I be using: $\text{GVIF}$ or $\text{GVIF}^{1/(2\cdot\text{df})}$?, URL (version: 2020-02-25): https://stats.stackexchange.com/q/96584
+
+## Question 2
+
+Which predictors have a positive influence and which predictors have a negative influence on the amount spent on concessions? Which analysis, regression or penal-ized regression, helped you answer this question? If you ran a neural net model, can it help you find the significant (or not) predictors and their magnitude and direction of influence on the outcome?
 
 ```{r}
-#Which predictors have a significant influence on amount spent on concessions?
-movies_seen       
-days_member
-#Which predictors are multicollinear?
-None
-
-Using Library car values
-more than 5 indicate a problem.
-
-Using Library olsrr Tolerance of <0.1 might indicate multicollinearity
-VIFs above 10 indicate multicollinearity.
-
+#we visualize our model output again for clarity
+summary(model1)
 ```
 
+> say which of the 4 are positive/negative
+> regular
+> ann are black box so no
+
+## Question 3
+
+Given the significant predictors, what strategies can MovieMagic come up with to increase amount spent on concessions?
+
+> answer
 
 **Penalized Regression**
 
-```{r, warning=FALSE, message=FALSE}
-library(ROCR)
+##Question 4 
+
+Which analysis, linear regression or penalized regression, helps you select relevant variables? Which predictor variables would you use in the model? Justify your answer using the analysis. Would a Ridge or a LASSO help in selecting relevant predictors?
+
+```{r, warning=FALSE, message=False}
 library(glmnet)
+library(caret)
 
+#we start by splitting the data into train and test on a 70-30 split
+set.seed(123)
+datasplit <- createDataPartition(project_data$amount_spent, p = 0.7, list=FALSE)
+trainData <- project_data[datasplit,]
+testData  <- project_data[-datasplit,]
 
+#split predictors and outcome
+predictors <- trainData[,c(1:8)]
+amount_spent <- trainData$amount_spent
+
+#dummytize predictors
+predictors <- data.matrix(predictors)
 
 ```
+
+```{r}
+set.seed(123)
+
+cv.model <- cv.glmnet(x = predictors, 
+                         y = amount_spent, 
+                         alpha=1,  #use lasso to select
+                         family="gaussian", #use guassian for quantitative outcome
+                         nfolds=4, 
+                         standardize = TRUE, 
+                         type.measure = "mse") #use mean squared error since outcome is numeric
+
+plot(cv.model)
+
+best.lambda <- cv.model$lambda.min
+best.lambda
+
+ y4<- coef(cv.binomial, s="lambda.min", exact=FALSE)
+print(y4)
+```
+
 
 
 **Predictive model**
@@ -71,6 +139,7 @@ The analysis was run by splitting the data........
 ```
 
 **Text Analysis**
+
 **WordCloud**
 ```{r, warning=FALSE, message=FALSE}
 library(corpus)
@@ -148,17 +217,22 @@ max.words=100, random.order=FALSE, rot.per=0.35,
 colors=brewer.pal(8, "Dark2"), scale=c(3, 0.7))
 
 ```
+
 **Topic Modeling**
 
 ```{r}
 library(topicmodels)
 library(tidytext)
- data("AssociatedPress")
-ap_lda <- LDA(AssociatedPress, k = 3, control = list(seed = 1234))
-ap_lda
+library(ggplot2)
+library(dplyr)
 
-ap_topics <- tidy(ap_lda, matrix = "beta")
-  ap_topics
+set.seed(234)
+
+corpus<- project_reviews_less_2stars
+corpus <- VCorpus(VectorSource(corpus$text))
+
+data<-
+dtm <- DocumentTermMatrix(corpus)
 
 
 ```
