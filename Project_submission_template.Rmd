@@ -231,7 +231,6 @@ set.seed(234)
 corpus<- project_reviews_less_2stars
 corpus <- VCorpus(VectorSource(corpus$text))
 
-data<-
 dtm <- DocumentTermMatrix(corpus)
 
 
