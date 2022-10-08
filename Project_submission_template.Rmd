@@ -125,7 +125,7 @@ plot(cv.model)
 best.lambda <- cv.model$lambda.min
 best.lambda
 
- y4<- coef(cv.binomial, s="lambda.min", exact=FALSE)
+y4<- coef(cv.binomial, s="lambda.min", exact=FALSE)
 print(y4)
 ```
 
@@ -226,13 +226,28 @@ library(tidytext)
 library(ggplot2)
 library(dplyr)
 
+dtm3 <- DocumentTermMatrix(corpus2)
+
+rowTotals <- apply(dtm3 , 1, sum)
+
 set.seed(234)
 
-corpus<- project_reviews_less_2stars
-corpus <- VCorpus(VectorSource(corpus$text))
+lda <- LDA(dtm3, k = 3, method = "Gibbs", control = NULL)
+topics <- tidy(lda, matrix = "beta")
 
-dtm <- DocumentTermMatrix(corpus)
 
+top_terms <- topics %>%
+group_by(topic) %>%
+top_n(10, beta) %>% # top_n picks 10 topics.
+ungroup() %>%
+arrange(topic, -beta)
+
+top_terms %>%
+mutate(term = reorder(term, beta)) %>%
+ggplot(aes(term, beta, fill = factor(topic))) +
+geom_col(show.legend = FALSE) +
+facet_wrap(~ topic, scales = "free") +
+coord_flip()
 
 ```
 
