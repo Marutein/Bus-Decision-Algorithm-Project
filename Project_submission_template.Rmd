@@ -90,54 +90,176 @@ Given the significant predictors, what strategies can MovieMagic come up with to
 
 Which analysis, linear regression or penalized regression, helps you select relevant variables? Which predictor variables would you use in the model? Justify your answer using the analysis. Would a Ridge or a LASSO help in selecting relevant predictors?
 
+```{r}
+# we first need to dummytize our factor variables since penalized regression requires numeric inputs
+library(fastDummies)
+project_data_dummy <- dummy_cols(project_data, 
+                                 select_columns = c('job','education'), #dummytize our factor variables
+                                 remove_selected_columns = TRUE) #remove the original columns
+
+project_data_dummy <- subset(project_data_dummy, 
+                             select = -c(job_unknown,education_unknown) #remove one dummy to avoid multicollinearity. Remove unknown as so it's the reference column 
+                             )
+```
+
+
 ```{r, warning=FALSE, message=False}
 library(glmnet)
 library(caret)
 
 #we start by splitting the data into train and test on a 70-30 split
 set.seed(123)
-datasplit <- createDataPartition(project_data$amount_spent, p = 0.7, list=FALSE)
-trainData <- project_data[datasplit,]
-testData  <- project_data[-datasplit,]
+datasplit <- createDataPartition(project_data_dummy$amount_spent, p = 0.7, list=FALSE)
+trainData <- project_data_dummy[datasplit,]
+testData  <- project_data_dummy[-datasplit,]
 
 #split predictors and outcome
-predictors <- trainData[,c(1:8)]
+predictors <- subset(trainData,
+                     select = -c(amount_spent))
 amount_spent <- trainData$amount_spent
 
-#dummytize predictors
+#convert to matrix for glmnet function
 predictors <- data.matrix(predictors)
 
 ```
 
 ```{r}
+#running the model
+
+#set seed for cross validation
 set.seed(123)
 
 cv.model <- cv.glmnet(x = predictors, 
                          y = amount_spent, 
                          alpha=1,  #use lasso to select
                          family="gaussian", #use guassian for quantitative outcome
-                         nfolds=4, 
-                         standardize = TRUE, 
+                         nfolds=4, #4 fold validation
+                         standardize = TRUE, #standardize inputs
                          type.measure = "mse") #use mean squared error since outcome is numeric
 
+#see plot for optimal lambda
 plot(cv.model)
-
+#output the best value for lambda
 best.lambda <- cv.model$lambda.min
 best.lambda
-
-y4<- coef(cv.binomial, s="lambda.min", exact=FALSE)
-print(y4)
 ```
 
+```{r}
+#See which coefficients are shrunk to 0 using optimal lambda
+coefficients <- coef(cv.model, s="lambda.min", exact=FALSE)
+print(coefficients)
+```
 
+> Linear regression does not have a shrinkage parameter and thus does not redue the effect of variables. Penalized regression, however, does shrink the impact of variables and helps us select relevant preditors variables. Particularly, LASSO regression can reduce the impact of variables all the way to 0. Those variables reduced to 0 can be eliminated from the analysis. 
+
+> In the code above, we first create dummy variables for factor variables sincee penalized regression requires numeric inputs. Next, we split our dummytized data into a test and train set. Next, we run a penalized regression model. We choose a LASSO model so it will reduce coefficients to 0. We also select a Gaussian model since we have a numeric output and chose to use Mean Squared Error (MSE) as our measure for model accuracy. We also implement cross-validation to select the optimal shrinkage parameter (lambda) that minimizes our MSE. Finally, use that optimal lambda value to run our best model. 
+
+> In the best model, several variables are reduced to 0 importance. Thus, in our final model we would use only: age, streaming, discount, days_member, movies_seen, job_entrepreneur, job_hospitality, job_retired, job_self-employed, and education_secondary.
 
 **Predictive model**
-The analysis was run by splitting the data........
-```{r, warning=FALSE, message=FALSE}
 
+##Question 5
+
+If you split the data 70-30 versus 80-20, how does it influence i) relevant variables selected, ii) RMSE and R-squared values of the linear regression?
+
+```{r}
+#We will evaluate our models on RMSE and R^2
+
+#define rmse
+rmse <- function(actual, predicted) sqrt(mean((actual - predicted)^2))
+
+#define r^2
+r2 <- function(actual, predicted){
+  TSS <- sum((actual - mean(actual))^2)
+  RSS <- sum((actual - predicted)^2)
+  1 - RSS/TSS
+}
 
 ```
 
+```{r}
+#results of 70-30
+
+#prepare test data 
+test_predictors <- subset(testData,
+                     select = -c(amount_spent))
+test_actual <- testData$amount_spent
+test_predictors <- data.matrix(test_predictors)
+
+# using the penalized regression model for predicion on the test data
+test_predictions = predict(cv.model, 
+                           newx = test_predictors, 
+                           type = "response", #predictions on scale of resonse variable
+                           s ="lambda.min")
+
+#calculate rmse
+rmse <- rmse(test_actual, test_predictions)
+
+#calculate r^2
+r2 <- r2(test_actual, test_predictions)
+
+print('For the 70-30 split, our model has the following performance:')
+print(paste('RMSE: ', rmse))
+print(paste('R-Squared ',r2))
+
+```
+
+```{r}
+#whole analysis for 80-20 split
+
+#split 80-20
+set.seed(123)
+datasplit <- createDataPartition(project_data_dummy$amount_spent, p = 0.8, list=FALSE)
+trainData <- project_data_dummy[datasplit,]
+testData  <- project_data_dummy[-datasplit,]
+#split predictors and outcome
+predictors <- subset(trainData,
+                     select = -c(amount_spent))
+amount_spent <- trainData$amount_spent
+#convert to matrix for glmnet function
+predictors <- data.matrix(predictors)
+#set seed for cross validation
+set.seed(123)
+cv.model <- cv.glmnet(x = predictors, 
+                         y = amount_spent, 
+                         alpha=1,  #use lasso to select
+                         family="gaussian", #use guassian for quantitative outcome
+                         nfolds=4, #4 fold validation
+                         standardize = TRUE, #standardize inputs
+                         type.measure = "mse") #use mean squared error since outcome is numeric
+#See which coefficients are shrunk to 0 using optimal lambda
+coefficients <- coef(cv.model, s="lambda.min", exact=FALSE)
+print(coefficients)
+
+```
+
+```{r}
+#results of 80-20
+#prepare test data 
+test_predictors <- subset(testData,
+                     select = -c(amount_spent))
+test_actual <- testData$amount_spent
+test_predictors <- data.matrix(test_predictors)
+# using the penalized regression model for predicion on the test data
+test_predictions = predict(cv.model, 
+                           newx = test_predictors, 
+                           type = "response", #predictions on scale of resonse variable
+                           s ="lambda.min")
+#calculate rmse
+rmse <- rmse(test_actual, test_predictions)
+#calculate r^2
+r2 <- r2(test_actual, test_predictions)
+
+print('For the 80-20 split, our model has the following performance:')
+print(paste('RMSE: ', rmse))
+print(paste('R-Squared ',r2))
+```
+
+If you split the data 70-30 versus 80-20, how does it influence i) relevant variables selected, ii) RMSE and R-squared values of the linear regression?
+
+> When we split the data 80-20, we drop two more variables (job_entrepreneur and education_secondary) since their effect is now insignificant. the other variables we included in the 70-30 split are also included in the 80-20. No variables are included in the 80-20 that were not incuded in the 70-30.
+
+> When we split the data 70-30, our rmse is 9.666 and our model explains 65.8% of the variance in amount_spent in the test set. During the 80-20 split our model improves. Our rmse drops to 9.631 and our R-squared improves to 66.9%. Our model improves in both out-of-sample statistics. This means, we'd choose the use the 80-20 model for future prediction. Using more train data means our model has more bias (ability to pick up idiosyncrecies in the train data) but also less variance (it's less likely to perform well on new data). However, since our out-of-sample statistics improved, we can be confident the 80-20 model will do well with new data.
 **Text Analysis**
 
 **WordCloud**
@@ -274,7 +396,9 @@ coord_flip()
 
 ##Question 7
 Which term is the most relevant in each of the three topics and how would it inform your business strategy?
-> ANSWER
+>TOPIC 1: This topic focuses on how good food is in the cinema.
+TOPIC 2: It talks about how enjoyable it is to watch a movie in the cinema.
+TOPIC 3: It is about the service quality that the cinema offer.
 
 What strategies would you suggest are possible for MovieMagic if it wants to increase concession sales.
 > ANSWER
