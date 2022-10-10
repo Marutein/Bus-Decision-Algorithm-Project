@@ -260,6 +260,7 @@ If you split the data 70-30 versus 80-20, how does it influence i) relevant vari
 > When we split the data 80-20, we drop two more variables (job_entrepreneur and education_secondary) since their effect is now insignificant. the other variables we included in the 70-30 split are also included in the 80-20. No variables are included in the 80-20 that were not incuded in the 70-30.
 
 > When we split the data 70-30, our rmse is 9.666 and our model explains 65.8% of the variance in amount_spent in the test set. During the 80-20 split our model improves. Our rmse drops to 9.631 and our R-squared improves to 66.9%. Our model improves in both out-of-sample statistics. This means, we'd choose the use the 80-20 model for future prediction. Using more train data means our model has more bias (ability to pick up idiosyncrecies in the train data) but also less variance (it's less likely to perform well on new data). However, since our out-of-sample statistics improved, we can be confident the 80-20 model will do well with new data.
+
 **Text Analysis**
 
 **WordCloud**
@@ -401,7 +402,11 @@ TOPIC 2: It talks about how enjoyable it is to watch a movie in the cinema.
 TOPIC 3: It is about the service quality that the cinema offer.
 
 What strategies would you suggest are possible for MovieMagic if it wants to increase concession sales.
-> ANSWER
+> 1) One way to increase food sales is by expanding the menu; offering a more significant number of food options could be vital in reaching those consumers who don't like the current menu, plus the loyal customer will find it appropriate to have the opportunity to try something new from time to time, so looking for ways to satisfy everyone shows empathy for care and customer service.
+2) A likely increase in sales staff would be conducive to reducing wait time. Reducing time allows people to be willing to wait in line to get their items; most people tend to choose not to buy food when the line is very long and when the movie is about to start. This will also help customers appreciate fast and efficient care as quality service.
+3) Continuous improvement of facility infrastructure is a crucial strategy; users have shown satisfaction with the quality of the cinema. Giving preventive and corrective maintenance to all the equipment used to project the films and the rooms will positively affect the perception of the establishment's quality.
 
 Would you recommend promotions or advertising or loyalty program; justify your choice of business strategy?
-> ANSWER
+> We would recommend loyalty programs and promotions:
+1) It is essential to reward customer loyalty. So looking for methods to make them feel appreciated and unique is also a way to show how important they are, so creating loyalty programs is a great idea to distinguish our most frequent customers; it is also a way to justify personalized attention to them.
+2) Promotions are a way to reward and thank every customer's preference; that is why promotions must be for the entire public to attract the attention of new customers and to improve or maintain loyalty between businesses and consumers.
