@@ -82,7 +82,10 @@ summary(model1)
 
 Given the significant predictors, what strategies can MovieMagic come up with to increase amount spent on concessions?
 
-> answer
+> The two most impactful predictors of concession spend are age and days being a member. Thus, long-term older members are the most lucrative for MovieMagic. The most impactful strategy will be to target older customers. There are several ways to do this: showing a selection of movies that appeal to older audiences, showing family friendly movies that are more likely to attract parents than singles, showing movies earlier in the day, etc. Second, MoveMagic should focus on converting these older customers into members. They might achieve this with targeted advertising in movie previews or signage around the cinema.
+ 
+
+> The only negative predictor was the number of streaming services. Given the current movie landscape, it will be difficult to find customers who don't subsribe to streaming services. Instead of avoiding those customers, MOvieMagic ought ot brand themselves as a premium experience. As opposed to watching TV on your couch, coming to the movie is an event - an event that ought to include food.
 
 **Penalized Regression**
 
@@ -419,3 +422,9 @@ Would you recommend promotions or advertising or l    oyalty program; justify yo
 > We would recommend loyalty programs and promotions:
 1) It is essential to reward customer loyalty. So looking for methods to make them feel appreciated and unique is also a way to show how important they are, so creating loyalty programs is a great idea to distinguish our most frequent customers; it is also a way to justify personalized attention to them.
 2) Promotions are a way to reward and thank every customer's preference; that is why promotions must be for the entire public to attract the attention of new customers and to improve or maintain loyalty between businesses and consumers.
+
+
+```{r}
+
+```
+
