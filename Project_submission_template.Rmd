@@ -74,9 +74,9 @@ Which predictors have a positive influence and which predictors have a negative 
 summary(model1)
 ```
 
-> say which of the 4 are positive/negative
-> regular
-> ann are black box so no
+> As noted earlier, only four variables have a significant influence on concession sales. For all of the other variables, we cannot confidently say if their impact is postive or negative. Among the influential variables, three have a positive influence. The older the customer is, the more they are likely to spend on concessions. The longer they have been a member and the more movies they have seen also make customers more likely to buy food. Alternatively, the more streaming services the customer subscribes to, the less money they are likely to spend on concessions. 
+
+> When we want coefficients to be interpretable, we use a regular regression model. So in our current case, we used regular regresion to estimate the coefficients on each predictor. Penalized regression shrinks parameters, so we can no longer interpret their values, just their signs. If we were to use a neural net to predict concession sales, we would not be able to interpret the impact of any predictors.
 
 ## Question 3
 
@@ -302,6 +302,10 @@ mtrix <- as.matrix(dtm)
 v <- sort(rowSums(mtrix),decreasing=TRUE)
 d <- data.frame(word = names(v),freq=v)
 
+layout(matrix(c(1, 2), nrow=2), heights=c(1, 4))
+par(mar=rep(0, 4))
+plot.new()
+text(x=0.5, y=0.5, "WorldCloud >= 3 Stars Rating")
 
 wordcloud(words = d$word, freq = d$freq, min.freq = 1,
 max.words=100, random.order=FALSE, rot.per=0.35,
@@ -335,6 +339,10 @@ v <- sort(rowSums(mtrix2),decreasing=TRUE)
 d <- data.frame(word = names(v),freq=v)
 
 #wordcloud settings
+layout(matrix(c(1, 2), nrow=2), heights=c(1, 4))
+par(mar=rep(0, 4))
+plot.new()
+text(x=0.5, y=0.5, "WorldCloud < 3 Stars Rating")
 wordcloud(words = d$word, freq = d$freq, min.freq = 1,
 max.words=100, random.order=FALSE, rot.per=0.35,
 colors=brewer.pal(8, "Dark2"), scale=c(3, 0.7))
@@ -405,8 +413,9 @@ What strategies would you suggest are possible for MovieMagic if it wants to inc
 > 1) One way to increase food sales is by expanding the menu; offering a more significant number of food options could be vital in reaching those consumers who don't like the current menu, plus the loyal customer will find it appropriate to have the opportunity to try something new from time to time, so looking for ways to satisfy everyone shows empathy for care and customer service.
 2) A likely increase in sales staff would be conducive to reducing wait time. Reducing time allows people to be willing to wait in line to get their items; most people tend to choose not to buy food when the line is very long and when the movie is about to start. This will also help customers appreciate fast and efficient care as quality service.
 3) Continuous improvement of facility infrastructure is a crucial strategy; users have shown satisfaction with the quality of the cinema. Giving preventive and corrective maintenance to all the equipment used to project the films and the rooms will positively affect the perception of the establishment's quality.
+4) Based on the result obtained in our regression model, we can identify that time people spend in the cinema is related to how much money they spend, so increasing the movie selection will be ideal for increasing the time people stay in the cinema. So this strategy will allow us to generate more income from concessionaries. 
 
-Would you recommend promotions or advertising or loyalty program; justify your choice of business strategy?
+Would you recommend promotions or advertising or l    oyalty program; justify your choice of business strategy?
 > We would recommend loyalty programs and promotions:
 1) It is essential to reward customer loyalty. So looking for methods to make them feel appreciated and unique is also a way to show how important they are, so creating loyalty programs is a great idea to distinguish our most frequent customers; it is also a way to justify personalized attention to them.
 2) Promotions are a way to reward and thank every customer's preference; that is why promotions must be for the entire public to attract the attention of new customers and to improve or maintain loyalty between businesses and consumers.
